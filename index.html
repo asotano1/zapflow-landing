@@ -99,6 +99,8 @@ img{max-width:100%;display:block}
 .btn-accent.added{background:var(--accent-dark)}
 .btn-outline{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);box-shadow:none}
 .btn-outline:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
+.btn-ghost{background:var(--bg-alt);color:var(--text);box-shadow:none}
+.btn-ghost:hover{background:var(--border);transform:translateY(-2px)}
 .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none!important}
 .btn svg{transition:transform .3s;flex-shrink:0}
 .btn:hover svg.arrow{transform:translateX(4px)}
@@ -404,6 +406,21 @@ img{max-width:100%;display:block}
 .modal-success svg{width:56px;height:56px;color:var(--accent,#0be881);margin:0 auto 18px}
 .modal-success h3{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text-heading);margin-bottom:8px}
 .modal-success p{font-size:14.5px;color:var(--text-muted)}
+.code-display{background:var(--bg-alt);border:1.5px dashed var(--nova-accent);border-radius:var(--radius);padding:14px 24px;font-family:var(--font-display);font-size:30px;font-weight:800;letter-spacing:6px;color:var(--nova-accent);margin:18px 0}
+.modal-hint{font-size:13px;color:var(--text-muted);margin-top:4px}
+
+/* ═══ ACOMPANHAR ORÇAMENTO ═══ */
+.tracking-badge{display:inline-block;background:var(--nova-accent);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px}
+.tracking-products{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.tracking-product{display:flex;align-items:center;gap:10px;background:var(--bg-alt);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;color:var(--text-heading)}
+.tracking-product-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tracking-error{color:#c0293f;font-size:13.5px;margin-top:12px;display:none}
+.tracking-error.show{display:block}
+.modal-status{display:none;text-align:center}
+.modal-status.show{display:block}
+.nav-track{font-size:14px;font-weight:600;color:var(--text-on-dark-muted);transition:color .2s}
+.navbar.scrolled .nav-track{color:var(--text-muted)}
+.nav-track:hover{color:var(--nova-accent)}
 
 /* ═══ SCROLL REVEAL ═══ */
 .rv{opacity:0;transform:translateY(30px);transition:all .7s cubic-bezier(.16,1,.3,1)}
@@ -442,6 +459,7 @@ img{max-width:100%;display:block}
     <a href="#comercioforge">ComércioForge</a>
     <a href="#instaforge">InstaForge</a>
     <a href="#faq">FAQ</a>
+    <a href="#" class="nav-track" onclick="openTrackingForm();return false">Acompanhar orçamento</a>
   </div>
   <button class="nav-cart" onclick="toggleCart()" aria-label="Ver orçamento">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
@@ -778,6 +796,7 @@ img{max-width:100%;display:block}
       <a href="#comercioforge">ComércioForge</a>
       <a href="#instaforge">InstaForge</a>
       <a href="#faq">FAQ</a>
+      <a href="#" onclick="openTrackingForm();return false">Acompanhar orçamento</a>
     </div>
     <p class="footer-copy">&copy; 2026 NovaForge. Todos os direitos reservados.</p>
   </div>
@@ -824,6 +843,7 @@ img{max-width:100%;display:block}
           <div class="form-group"><label for="of-email">E-mail</label><input type="email" id="of-email" placeholder="seu@email.com" required></div>
           <div class="form-group"><label for="of-whatsapp">WhatsApp</label><input type="tel" id="of-whatsapp" placeholder="(11) 99999-9999" required></div>
         </div>
+        <div class="form-group"><label for="of-telegram">Telegram (opcional)</label><input type="text" id="of-telegram" placeholder="@seuusuario"></div>
         <button type="submit" class="btn btn-nova">Enviar pedido de orçamento</button>
       </form>
       <p class="modal-disclaimer">Seus dados estão seguros. Não enviamos spam.</p>
@@ -833,6 +853,38 @@ img{max-width:100%;display:block}
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg>
       <h3>Pedido enviado!</h3>
       <p>Seu app de e-mail deve abrir com a solicitação preenchida. É só confirmar o envio.</p>
+      <p class="modal-hint">Guarde seu código de acesso pra acompanhar o status depois:</p>
+      <div class="code-display" id="orcamentoCodigo"></div>
+      <p class="modal-hint">Use seu e-mail + esse código em "Acompanhar orçamento".</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL ACOMPANHAR ORÇAMENTO ═══ -->
+<div class="modal-overlay" id="trackingOverlay" onclick="if(event.target===this)closeTrackingForm()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTrackingForm()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div id="trackingFormWrap">
+      <h2>Acompanhar orçamento</h2>
+      <p class="modal-resumo">Digite o e-mail e o código de acesso que você recebeu ao solicitar o orçamento.</p>
+      <form id="trackingForm" onsubmit="return handleTrackingSubmit(event)">
+        <div class="form-group"><label for="tk-email">E-mail</label><input type="email" id="tk-email" placeholder="seu@email.com" required></div>
+        <div class="form-group"><label for="tk-code">Código de acesso</label><input type="text" id="tk-code" placeholder="000000" maxlength="6" required></div>
+        <button type="submit" class="btn btn-nova">Consultar</button>
+      </form>
+      <p class="tracking-error" id="trackingError">Não encontramos esse cadastro. Confira o e-mail e o código, ou solicite um orçamento primeiro.</p>
+      <p class="modal-disclaimer">Ainda não tem código? Peça um orçamento em qualquer seção de produto.</p>
+    </div>
+
+    <div class="modal-status" id="trackingResult">
+      <div class="tracking-badge">Recebido</div>
+      <h2 id="trackingResultName"></h2>
+      <p class="modal-resumo">Pedido registrado em <strong id="trackingResultDate"></strong>. Assim que revisarmos, entramos em contato pelos canais informados no cadastro.</p>
+      <div class="tracking-products" id="trackingResultProducts"></div>
+      <button class="btn btn-ghost" onclick="resetTrackingForm()">Consultar outro</button>
     </div>
   </div>
 </div>
@@ -845,6 +897,15 @@ const PRODUCTS = {
   instaforge:{name:'InstaForge',desc:'Gestão e SEO de Instagram',dot:'#c2379f'}
 };
 let cart = [];
+
+// MOCK: cadastro de clientes só em memória (some ao recarregar a página).
+// Quando o webhook n8n de cadastro/login existir, trocar por chamadas reais
+// (POST pra registrar + GET pra consultar por e-mail/código) e remover este objeto.
+let clients = {};
+
+function generateAccessCode(){
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
 
 function toggleCartItem(id, btn){
   const idx = cart.indexOf(id);
@@ -935,10 +996,23 @@ function handleOrcamentoSubmit(e){
   const email = document.getElementById('of-email').value;
   const whatsapp = document.getElementById('of-whatsapp').value;
   const empresa = document.getElementById('of-empresa').value || '—';
-  const produtos = cart.map(id => '- ' + PRODUCTS[id].name + ' — ' + PRODUCTS[id].desc).join('\n');
+  const telegram = document.getElementById('of-telegram').value || '—';
+  const produtosCart = [...cart];
+  const produtos = produtosCart.map(id => '- ' + PRODUCTS[id].name + ' — ' + PRODUCTS[id].desc).join('\n');
+  const codigo = generateAccessCode();
 
-  const subject = 'Pedido de orçamento — ' + cart.map(id => PRODUCTS[id].name).join(', ');
-  const body = 'Nome: ' + nome + '\nE-mail: ' + email + '\nWhatsApp: ' + whatsapp + '\nEmpresa: ' + empresa
+  // MOCK: gera o código e "cadastra" o cliente só em memória do navegador.
+  // Quando o webhook n8n existir, é ele quem deve gerar o código, gravar o
+  // cliente (planilha/Airtable/Postgres) e mandar o código por e-mail/WhatsApp/
+  // Telegram — aí esta linha vira só uma leitura da resposta do webhook.
+  clients[email.trim().toLowerCase()] = {
+    nome, empresa, whatsapp, telegram, produtos: produtosCart,
+    code: codigo, status: 'Recebido', data: new Date().toLocaleDateString('pt-BR')
+  };
+
+  const subject = 'Pedido de orçamento — ' + produtosCart.map(id => PRODUCTS[id].name).join(', ');
+  const body = 'Nome: ' + nome + '\nE-mail: ' + email + '\nWhatsApp: ' + whatsapp + '\nTelegram: ' + telegram
+    + '\nEmpresa: ' + empresa + '\nCódigo de acesso do cliente: ' + codigo
     + '\n\nProdutos de interesse:\n' + produtos;
 
   // Envio padrão: mailto (site estático, sem backend).
@@ -948,13 +1022,62 @@ function handleOrcamentoSubmit(e){
   // fetch('https://SEU-N8N.dominio.com/webhook/orcamento', {
   //   method: 'POST',
   //   headers: {'Content-Type':'application/json'},
-  //   body: JSON.stringify({nome, email, whatsapp, empresa, produtos: cart})
+  //   body: JSON.stringify({nome, email, whatsapp, telegram, empresa, produtos: produtosCart})
   // });
+  // Nesse caso o código de acesso passa a ser gerado pelo n8n (retornado na
+  // resposta do webhook) em vez de gerado aqui no navegador.
 
+  document.getElementById('orcamentoCodigo').textContent = codigo;
   document.getElementById('orcamentoFormWrap').style.display = 'none';
   document.getElementById('orcamentoSuccess').classList.add('show');
   e.target.reset();
   cart.forEach(id => removeFromCart(id));
+  return false;
+}
+
+function openTrackingForm(){
+  document.getElementById('trackingFormWrap').style.display = 'block';
+  document.getElementById('trackingResult').classList.remove('show');
+  document.getElementById('trackingError').classList.remove('show');
+  document.getElementById('trackingForm').reset();
+  document.getElementById('trackingOverlay').classList.add('open');
+  closeCart();
+}
+function closeTrackingForm(){
+  document.getElementById('trackingOverlay').classList.remove('open');
+}
+function resetTrackingForm(){
+  document.getElementById('trackingResult').classList.remove('show');
+  document.getElementById('trackingError').classList.remove('show');
+  document.getElementById('trackingFormWrap').style.display = 'block';
+  document.getElementById('trackingForm').reset();
+}
+
+function handleTrackingSubmit(e){
+  e.preventDefault();
+  const email = document.getElementById('tk-email').value.trim().toLowerCase();
+  const code = document.getElementById('tk-code').value.trim();
+  const errorEl = document.getElementById('trackingError');
+
+  // MOCK: busca só no objeto `clients` em memória desta aba. Quando o
+  // webhook n8n de consulta existir, trocar por um fetch GET (email+código)
+  // e usar a resposta pra preencher os mesmos campos abaixo.
+  const client = clients[email];
+
+  if(!client || client.code !== code){
+    errorEl.classList.add('show');
+    return false;
+  }
+  errorEl.classList.remove('show');
+
+  document.getElementById('trackingResultName').textContent = 'Olá, ' + client.nome + '!';
+  document.getElementById('trackingResultDate').textContent = client.data;
+  document.getElementById('trackingResultProducts').innerHTML = client.produtos.map(id => {
+    const p = PRODUCTS[id];
+    return '<div class="tracking-product"><span class="tracking-product-dot" style="background:' + p.dot + '"></span>' + p.name + '</div>';
+  }).join('');
+  document.getElementById('trackingFormWrap').style.display = 'none';
+  document.getElementById('trackingResult').classList.add('show');
   return false;
 }
 
