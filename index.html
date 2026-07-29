@@ -150,14 +150,6 @@ img{max-width:100%;display:block}
   animation:meshShift 14s ease-in-out infinite alternate;
 }
 @keyframes meshShift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.05) translate(-2%,3%)}}
-.hero-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
-  background-size:60px 60px;
-  mask-image:radial-gradient(ellipse 70% 70% at 50% 35%,black 20%,transparent 70%);
-  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 35%,black 20%,transparent 70%);
-  pointer-events:none;
-}
 .orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(90px);opacity:.5}
 .orb-1{width:380px;height:380px;background:rgba(11,232,129,.16);top:-80px;left:-100px;animation:orbFloat 18s ease-in-out infinite}
 .orb-2{width:320px;height:320px;background:rgba(20,80,196,.16);top:10%;right:-80px;animation:orbFloat 22s ease-in-out infinite reverse}
@@ -177,7 +169,7 @@ img{max-width:100%;display:block}
   font-family:var(--font-display);font-size:clamp(34px,5.2vw,58px);font-weight:800;
   line-height:1.1;color:#fff;letter-spacing:-.02em;margin:0 auto 22px;max-width:820px;
 }
-.hero-h1 em{font-style:normal;background:linear-gradient(90deg,#0be881,#1450c4 35%,#d9622f 65%,#c2379f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-h1 em{font-style:normal;color:var(--nova-accent)}
 .hero-sub{font-size:clamp(17px,2vw,19px);color:var(--text-on-dark-muted);line-height:1.6;max-width:600px;margin:0 auto 40px}
 .hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
 
@@ -188,7 +180,7 @@ img{max-width:100%;display:block}
   border-radius:var(--radius-lg);padding:28px 22px;text-align:left;
   transition:all .4s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(6px);
 }
-.hero-product-card:hover{transform:translateY(-6px);background:rgba(255,255,255,.07);border-color:var(--accent-glow-strong);box-shadow:0 12px 40px var(--accent-glow)}
+.hero-product-card:hover{transform:translateY(-6px);background:rgba(255,255,255,.07);border-color:var(--accent-glow-strong);box-shadow:0 12px 40px rgba(0,0,0,.35)}
 .hp-icon{width:44px;height:44px;border-radius:12px;background:var(--accent-glow);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
 .hero-product-card h3{font-family:var(--font-display);font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
 .hero-product-card p{font-size:13.5px;color:var(--text-on-dark-muted);line-height:1.5;margin-bottom:16px}
@@ -217,7 +209,7 @@ img{max-width:100%;display:block}
   padding:18px 20px;display:flex;gap:16px;align-items:flex-start;
   transition:all .35s cubic-bezier(.16,1,.3,1);
 }
-.product-card:hover{border-color:var(--accent-glow-strong);box-shadow:0 8px 28px var(--accent-glow);transform:translateX(4px)}
+.product-card:hover{border-color:var(--accent-glow-strong);box-shadow:0 8px 28px rgba(0,0,0,.12);transform:translateX(4px)}
 .product-card-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-glow);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .product-card-icon svg{width:20px;height:20px}
 .product-card h4{font-size:15.5px;font-weight:700;color:var(--text-heading);margin-bottom:3px}
@@ -226,18 +218,18 @@ img{max-width:100%;display:block}
 /* ═══ MOCKUP: CHAT (WhatsForge) ═══ */
 .chat-mockup{
   background:#0b1e14;border-radius:var(--radius-xl);overflow:hidden;
-  box-shadow:0 20px 80px rgba(0,0,0,.4),0 0 60px var(--accent-glow);
+  box-shadow:0 20px 80px rgba(0,0,0,.4);
   max-width:380px;margin:0 auto;border:1px solid var(--accent-glow-strong);
   transform:perspective(800px) rotateY(-2deg) rotateX(1deg);
   transition:transform .6s cubic-bezier(.16,1,.3,1);
 }
 .chat-mockup:hover{transform:perspective(800px) rotateY(0) rotateX(0)}
 .chat-header{background:#0d3a26;padding:14px 18px;display:flex;align-items:center;gap:12px}
-.chat-avatar{width:38px;height:38px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0;box-shadow:0 0 16px var(--accent-glow)}
+.chat-avatar{width:38px;height:38px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0}
 .chat-header-info{flex:1}
 .chat-header-name{color:#fff;font-weight:600;font-size:14px}
 .chat-header-status{color:var(--accent);font-size:12px;display:flex;align-items:center;gap:5px}
-.chat-header-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.chat-header-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent)}
 .chat-body{background:#e5ddd5;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:280px;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8c4be' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
 .msg{max-width:82%;padding:8px 12px;border-radius:10px;font-size:13.5px;line-height:1.45;position:relative;animation:msgSlide .5s cubic-bezier(.16,1,.3,1) both}
 .msg-in{background:#fff;color:#111;align-self:flex-start;border-top-left-radius:3px}
@@ -255,7 +247,7 @@ img{max-width:100%;display:block}
 /* ═══ MOCKUP: BROWSER (RankForge) ═══ */
 .device-frame{
   background:#0b0b14;border-radius:var(--radius-xl);overflow:hidden;max-width:420px;margin:0 auto;
-  box-shadow:0 20px 80px rgba(0,0,0,.35),0 0 60px var(--accent-glow);border:1px solid var(--accent-glow-strong);
+  box-shadow:0 20px 80px rgba(0,0,0,.35);border:1px solid var(--accent-glow-strong);
 }
 .device-bar{background:#15151f;padding:12px 16px;display:flex;align-items:center;gap:7px}
 .device-dot{width:9px;height:9px;border-radius:50%;background:#3a3a48;flex-shrink:0}
@@ -271,13 +263,13 @@ img{max-width:100%;display:block}
 .rank-stat-value{font-size:14.5px;font-weight:700;color:var(--text-heading)}
 .rank-stat-value s{color:var(--text-muted);font-weight:400}
 .stat-bar{height:6px;background:var(--accent-glow);border-radius:3px;overflow:hidden;margin-top:6px}
-.stat-bar-fill{height:100%;width:0;background:var(--accent);border-radius:3px;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
-.stat-bar-fill.filled{width:var(--w)}
+.stat-bar-fill{height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:var(--accent);border-radius:3px;transition:transform 1.4s cubic-bezier(.16,1,.3,1)}
+.stat-bar-fill.filled{transform:scaleX(var(--w))}
 
 /* ═══ MOCKUP: PHONE (ComércioForge / InstaForge) ═══ */
 .phone-frame{
   width:250px;margin:0 auto;background:#0b0b14;border-radius:36px;padding:12px;
-  box-shadow:0 20px 80px rgba(0,0,0,.35),0 0 60px var(--accent-glow);border:1px solid var(--accent-glow-strong);
+  box-shadow:0 20px 80px rgba(0,0,0,.35);border:1px solid var(--accent-glow-strong);
 }
 .phone-notch{width:70px;height:16px;background:#0b0b14;border-radius:0 0 12px 12px;margin:0 auto 8px}
 .phone-screen{background:#fff;border-radius:24px;overflow:hidden;padding:18px 14px;min-height:400px}
@@ -314,9 +306,9 @@ img{max-width:100%;display:block}
 .faq-q:hover{color:var(--nova-accent)}
 .faq-q svg{flex-shrink:0;color:var(--nova-accent);transition:transform .3s}
 .faq-item.active .faq-q svg{transform:rotate(45deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s;padding:0 24px}
-.faq-item.active .faq-a{max-height:200px;padding:0 24px 20px}
-.faq-a p{font-size:15px;color:var(--text-muted);line-height:1.65}
+.faq-a{display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows .35s ease;padding:0 24px 20px}
+.faq-item.active .faq-a{grid-template-rows:1fr}
+.faq-a p{font-size:15px;color:var(--text-muted);line-height:1.65;overflow:hidden}
 
 /* ═══ FINAL CTA ═══ */
 .final-cta{background:linear-gradient(160deg,var(--hero-start),var(--hero-mid));padding:100px 24px;text-align:center;color:#fff;position:relative;overflow:hidden}
@@ -339,9 +331,9 @@ img{max-width:100%;display:block}
 .cart-float{
   position:fixed;bottom:28px;right:28px;z-index:150;width:60px;height:60px;border-radius:50%;
   background:var(--nova-accent);display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 24px rgba(91,79,224,.45);transition:all .3s;color:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.35);transition:all .3s;color:#fff;
 }
-.cart-float:hover{transform:scale(1.08);box-shadow:0 6px 32px rgba(91,79,224,.55)}
+.cart-float:hover{transform:scale(1.08);box-shadow:0 6px 32px rgba(0,0,0,.4)}
 @keyframes cartBump{0%{transform:scale(1)}30%{transform:scale(1.18)}60%{transform:scale(.94)}100%{transform:scale(1)}}
 .cart-float.bump{animation:cartBump .4s ease}
 .cart-float svg{width:26px;height:26px}
@@ -470,7 +462,6 @@ img{max-width:100%;display:block}
 <!-- ═══ HERO ═══ -->
 <section class="hero" id="topo">
   <div class="hero-mesh"></div>
-  <div class="hero-grid"></div>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
@@ -636,12 +627,12 @@ img{max-width:100%;display:block}
               <div class="rank-stat">
                 <div class="rank-stat-label">Posição no Google</div>
                 <div class="rank-stat-value">De <s>#47</s> pra <strong>#2</strong></div>
-                <div class="stat-bar"><div class="stat-bar-fill" style="--w:88%"></div></div>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:.88"></div></div>
               </div>
               <div class="rank-stat">
                 <div class="rank-stat-label">Tráfego orgânico</div>
                 <div class="rank-stat-value"><strong>+340%</strong> em 6 meses</div>
-                <div class="stat-bar"><div class="stat-bar-fill" style="--w:75%"></div></div>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:.75"></div></div>
               </div>
             </div>
           </div>
