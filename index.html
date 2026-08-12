@@ -1027,11 +1027,8 @@ const PRODUCTS = {
 };
 let cart = [];
 
-// MOCK: cadastro de clientes só em memória (some ao recarregar a página).
-// Quando o webhook n8n de cadastro/login existir, trocar por chamadas reais
-// (POST pra registrar + GET pra consultar por e-mail/código) e remover este objeto.
-let clients = {};
-
+// Gera um código de fallback só se o webhook de cadastro falhar (ver
+// handleOrcamentoSubmit) — o código "de verdade" é gerado pelo servidor.
 function generateAccessCode(){
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -1119,7 +1116,7 @@ function closeOrcamentoForm(){
   document.getElementById('orcamentoOverlay').classList.remove('open');
 }
 
-function handleOrcamentoSubmit(e){
+async function handleOrcamentoSubmit(e){
   e.preventDefault();
   const nome = document.getElementById('of-nome').value;
   const email = document.getElementById('of-email').value;
@@ -1129,16 +1126,28 @@ function handleOrcamentoSubmit(e){
   const cnpj = document.getElementById('of-cnpj').value || '—';
   const produtosCart = [...cart];
   const produtos = produtosCart.map(id => '- ' + PRODUCTS[id].name + ' — ' + PRODUCTS[id].desc).join('\n');
-  const codigo = generateAccessCode();
 
-  // MOCK: gera o código e "cadastra" o cliente só em memória do navegador.
-  // Quando o webhook n8n existir, é ele quem deve gerar o código, gravar o
-  // cliente (planilha/Airtable/Postgres) e mandar o código por e-mail/WhatsApp/
-  // Telegram — aí esta linha vira só uma leitura da resposta do webhook.
-  clients[email.trim().toLowerCase()] = {
-    nome, empresa, whatsapp, telegram, produtos: produtosCart,
-    code: codigo, status: 'Recebido', data: new Date().toLocaleDateString('pt-BR')
-  };
+  // Cadastro no webhook de leads (planilha "Cadastros NovaForge" + e-mail
+  // automático de primeiro contato). O código de acesso é gerado e gravado
+  // pelo servidor, pra "Acompanhar orçamento" funcionar em qualquer aparelho
+  // e a qualquer hora — não só na mesma aba em que o pedido foi feito.
+  let codigo;
+  try {
+    const resp = await fetch('https://script.google.com/macros/s/AKfycbxoRfhq3pVGmeWmli0FRlrQQE-zbyAM9dK8Tj037rVmvBwaZyDpmt7i87CTbtjrN_PZ/exec', {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({
+        nome, email, whatsapp, telegram, empresa, cnpj,
+        produtos: produtosCart.map(id => PRODUCTS[id].name).join(', ')
+      })
+    });
+    const data = await resp.json();
+    codigo = data.code || generateAccessCode();
+  } catch (err) {
+    // Se o webhook falhar, segue com um código local só pra não travar o
+    // pedido — nesse caso "Acompanhar orçamento" pode não achar o cadastro.
+    codigo = generateAccessCode();
+  }
 
   const subject = 'Pedido de orçamento — ' + produtosCart.map(id => PRODUCTS[id].name).join(', ');
   const body = 'Nome: ' + nome + '\nE-mail: ' + email + '\nWhatsApp: ' + whatsapp + '\nTelegram: ' + telegram
@@ -1147,26 +1156,6 @@ function handleOrcamentoSubmit(e){
 
   // Envio padrão: mailto (site estático, sem backend).
   window.location.href = 'mailto:novaforgesolucoes@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-
-  // Cadastro assíncrono no webhook de leads (planilha "Cadastros NovaForge" + e-mail
-  // automático de primeiro contato). Roda em paralelo ao mailto acima, sem bloquear.
-  fetch('https://script.google.com/macros/s/AKfycbxoRfhq3pVGmeWmli0FRlrQQE-zbyAM9dK8Tj037rVmvBwaZyDpmt7i87CTbtjrN_PZ/exec', {
-    method: 'POST',
-    headers: {'Content-Type': 'text/plain'},
-    body: JSON.stringify({
-      nome, email, whatsapp, telegram, empresa, cnpj,
-      produtos: produtosCart.map(id => PRODUCTS[id].name).join(', ')
-    })
-  }).catch(() => {});
-
-  // Para trocar por webhook n8n no futuro, comente a linha do mailto acima e use:
-  // fetch('https://SEU-N8N.dominio.com/webhook/orcamento', {
-  //   method: 'POST',
-  //   headers: {'Content-Type':'application/json'},
-  //   body: JSON.stringify({nome, email, whatsapp, telegram, empresa, produtos: produtosCart})
-  // });
-  // Nesse caso o código de acesso passa a ser gerado pelo n8n (retornado na
-  // resposta do webhook) em vez de gerado aqui no navegador.
 
   document.getElementById('orcamentoCodigo').textContent = codigo;
   document.getElementById('orcamentoFormWrap').style.display = 'none';
@@ -1194,28 +1183,32 @@ function resetTrackingForm(){
   document.getElementById('trackingForm').reset();
 }
 
-function handleTrackingSubmit(e){
+async function handleTrackingSubmit(e){
   e.preventDefault();
   const email = document.getElementById('tk-email').value.trim().toLowerCase();
   const code = document.getElementById('tk-code').value.trim();
   const errorEl = document.getElementById('trackingError');
 
-  // MOCK: busca só no objeto `clients` em memória desta aba. Quando o
-  // webhook n8n de consulta existir, trocar por um fetch GET (email+código)
-  // e usar a resposta pra preencher os mesmos campos abaixo.
-  const client = clients[email];
+  // Consulta o webhook de leads (mesma planilha "Cadastros NovaForge") por
+  // e-mail + código — funciona em qualquer aparelho, a qualquer hora.
+  let data;
+  try {
+    const resp = await fetch('https://script.google.com/macros/s/AKfycbxoRfhq3pVGmeWmli0FRlrQQE-zbyAM9dK8Tj037rVmvBwaZyDpmt7i87CTbtjrN_PZ/exec?email=' + encodeURIComponent(email) + '&code=' + encodeURIComponent(code));
+    data = await resp.json();
+  } catch (err) {
+    data = { ok: false };
+  }
 
-  if(!client || client.code !== code){
+  if(!data.ok){
     errorEl.classList.add('show');
     return false;
   }
   errorEl.classList.remove('show');
 
-  document.getElementById('trackingResultName').textContent = 'Olá, ' + client.nome + '!';
-  document.getElementById('trackingResultDate').textContent = client.data;
-  document.getElementById('trackingResultProducts').innerHTML = client.produtos.map(id => {
-    const p = PRODUCTS[id];
-    return '<div class="tracking-product"><span class="tracking-product-dot" style="background:' + p.dot + '"></span>' + p.name + '</div>';
+  document.getElementById('trackingResultName').textContent = 'Olá, ' + data.nome + '!';
+  document.getElementById('trackingResultDate').textContent = data.data;
+  document.getElementById('trackingResultProducts').innerHTML = String(data.produtos || '').split(',').map(nome => nome.trim()).filter(Boolean).map(nome => {
+    return '<div class="tracking-product">' + nome + '</div>';
   }).join('');
   document.getElementById('trackingFormWrap').style.display = 'none';
   document.getElementById('trackingResult').classList.add('show');
