@@ -967,7 +967,10 @@ img{max-width:100%;display:block}
           <div class="form-group"><label for="of-email">E-mail</label><input type="email" id="of-email" placeholder="seu@email.com" required></div>
           <div class="form-group"><label for="of-whatsapp">WhatsApp</label><input type="tel" id="of-whatsapp" placeholder="(11) 99999-9999" required></div>
         </div>
-        <div class="form-group"><label for="of-telegram">Telegram (opcional)</label><input type="text" id="of-telegram" placeholder="@seuusuario"></div>
+        <div class="form-row">
+          <div class="form-group"><label for="of-telegram">Telegram (opcional)</label><input type="text" id="of-telegram" placeholder="@seuusuario"></div>
+          <div class="form-group"><label for="of-cnpj">CNPJ (opcional)</label><input type="text" id="of-cnpj" placeholder="00.000.000/0000-00"></div>
+        </div>
         <button type="submit" class="btn btn-nova">Enviar pedido de orçamento</button>
       </form>
       <p class="modal-disclaimer">Seus dados estão seguros. Não enviamos spam.</p>
@@ -1123,6 +1126,7 @@ function handleOrcamentoSubmit(e){
   const whatsapp = document.getElementById('of-whatsapp').value;
   const empresa = document.getElementById('of-empresa').value || '—';
   const telegram = document.getElementById('of-telegram').value || '—';
+  const cnpj = document.getElementById('of-cnpj').value || '—';
   const produtosCart = [...cart];
   const produtos = produtosCart.map(id => '- ' + PRODUCTS[id].name + ' — ' + PRODUCTS[id].desc).join('\n');
   const codigo = generateAccessCode();
@@ -1142,7 +1146,18 @@ function handleOrcamentoSubmit(e){
     + '\n\nProdutos de interesse:\n' + produtos;
 
   // Envio padrão: mailto (site estático, sem backend).
-  window.location.href = 'mailto:asotano1@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.location.href = 'mailto:novaforgesolucoes@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+
+  // Cadastro assíncrono no webhook de leads (planilha "Cadastros NovaForge" + e-mail
+  // automático de primeiro contato). Roda em paralelo ao mailto acima, sem bloquear.
+  fetch('https://script.google.com/macros/s/AKfycbxoRfhq3pVGmeWmli0FRlrQQE-zbyAM9dK8Tj037rVmvBwaZyDpmt7i87CTbtjrN_PZ/exec', {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify({
+      nome, email, whatsapp, telegram, empresa, cnpj,
+      produtos: produtosCart.map(id => PRODUCTS[id].name).join(', ')
+    })
+  }).catch(() => {});
 
   // Para trocar por webhook n8n no futuro, comente a linha do mailto acima e use:
   // fetch('https://SEU-N8N.dominio.com/webhook/orcamento', {
