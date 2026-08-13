@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico rápido — NovaForge Soluções</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --text: #eef0f3;
+    --muted: #9aa2b1;
+    --accent: #5b8cff;
+    --border: #262b36;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    padding: 32px 16px 80px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .q {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .q-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+  label.opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  label.opt:hover { background: #1e222c; }
+  input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; flex: none; }
+  textarea {
+    width: 100%;
+    min-height: 70px;
+    background: #0f1115;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+  }
+  .submit-bar { margin-top: 24px; text-align: center; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { opacity: .9; }
+  button:disabled { opacity: .6; cursor: default; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  .missing { border-color: #ff6b6b !important; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <h1>Diagnóstico rápido — NovaForge Soluções</h1>
+  <p class="sub">Leva menos de 3 minutos. Não tem certo ou errado — o objetivo é entender onde a automação faz mais diferença no seu negócio agora.</p>
+
+  <form id="quiz"></form>
+
+  <div class="submit-bar">
+    <button type="button" onclick="enviar()">Enviar respostas</button>
+    <p class="hint">Suas respostas são enviadas direto pra gente — não precisa abrir e-mail.</p>
+  </div>
+</div>
+
+<script>
+const perguntas = [
+  { id: 1, tipo: "mc", titulo: "1. Qual área do seu negócio mais rouba seu tempo hoje?",
+    opcoes: ["Atendimento e resposta no WhatsApp","Vendas online / gestão de pedidos","Redes sociais / Instagram","Financeiro (cobrança, entradas e saídas)","Logística e entregas","Aparecer no Google / atrair clientes novos"] },
+  { id: 2, tipo: "mc", titulo: "2. Quantas mensagens, pedidos ou atendimentos sua equipe lida por dia, em média?",
+    opcoes: ["Até 20","De 21 a 50","De 51 a 150","Mais de 150"] },
+  { id: 3, tipo: "mc", titulo: "3. Quantas pessoas trabalham no negócio hoje (você incluído)?",
+    opcoes: ["Só eu","De 2 a 5","De 6 a 15","16 ou mais"] },
+  { id: 4, tipo: "mc", titulo: "4. Quem cuida do atendimento ao cliente hoje?",
+    opcoes: ["Eu mesmo, no meu celular","Um funcionário dedicado a isso","Uma equipe inteira de atendimento","É terceirizado"] },
+  { id: 5, tipo: "mc", titulo: "5. Você já usa alguma ferramenta paga para automatizar algo no negócio (CRM, chatbot, disparo em massa, agendamento online)?",
+    opcoes: ["Sim, mais de uma","Sim, uma","Não, mas já pesquisei","Não, nunca pensei nisso"] },
+  { id: 6, tipo: "mc", titulo: "6. Quanto tempo por dia você ou sua equipe perdem com tarefas repetitivas?",
+    opcoes: ["Menos de 30 minutos","De 30 minutos a 2 horas","De 2 a 4 horas","Mais de 4 horas"] },
+  { id: 7, tipo: "aberta", titulo: "7. Se pudesse resolver UM problema operacional agora, qual seria?" },
+  { id: 8, tipo: "mc", titulo: "8. Como você lida com clientes que mandam mensagem fora do horário comercial?",
+    opcoes: ["Não respondo até o outro dia","Respondo manualmente sempre que posso","Tenho uma resposta automática simples","Já tenho atendimento automatizado"] },
+  { id: 9, tipo: "mc", titulo: "9. Quando alguém busca no Google o que você vende, seu site ou perfil aparece nas primeiras posições?",
+    opcoes: ["Sim","Mais ou menos","Não sei dizer","Não"] },
+  { id: 10, tipo: "mc", titulo: "10. Como estão suas vendas pelo Instagram ou redes sociais hoje?",
+    opcoes: ["Crescem de forma consistente","Estão estagnadas","Caíram","Não vendo por lá"] },
+  { id: 11, tipo: "mc", titulo: "11. Você tem um processo definido para cobrar clientes inadimplentes ou lançar entradas e saídas financeiras?",
+    opcoes: ["Sim, automatizado","Sim, manual em planilha","Faço de cabeça","Não tenho processo nenhum"] },
+  { id: 12, tipo: "mc", titulo: "12. Como é organizada sua logística/entregas hoje? (pule se não se aplica)",
+    opcoes: ["Terceirizada e organizada","Eu ou minha equipe controla manualmente","É uma bagunça","Não se aplica ao meu negócio"] },
+  { id: 13, tipo: "mc", titulo: "13. Nos últimos 6 meses, você já perdeu alguma venda ou cliente por demora ou desorganização no atendimento?",
+    opcoes: ["Sim, várias vezes","Sim, algumas vezes","Raramente","Nunca que eu saiba"] },
+  { id: 14, tipo: "mc", titulo: "14. Se existisse uma solução pronta pra resolver a sua maior dor operacional em poucas semanas, o que mais pesaria pra você decidir experimentar?",
+    opcoes: ["Preço acessível pra testar sem risco","Ver resultado rápido e comprovado","Suporte próximo pra tirar dúvida","Já estou decidido, só falta a solução certa"] },
+  { id: 15, tipo: "aberta", titulo: "15. Em uma frase: como seria seu dia de trabalho se essa dor sumisse?" }
+];
+
+const form = document.getElementById("quiz");
+perguntas.forEach(p => {
+  const div = document.createElement("div");
+  div.className = "q";
+  div.id = "q" + p.id;
+  let html = `<div class="q-title">${p.titulo}</div>`;
+  if (p.tipo === "mc") {
+    p.opcoes.forEach((op, i) => {
+      html += `<label class="opt"><input type="radio" name="q${p.id}" value="${op}">${op}</label>`;
+    });
+  } else {
+    html += `<textarea name="q${p.id}" placeholder="Escreva aqui..."></textarea>`;
+  }
+  div.innerHTML = html;
+  form.appendChild(div);
+});
+
+async function enviar() {
+  let respostas = {};
+  let faltando = [];
+  perguntas.forEach(p => {
+    let valor = "";
+    if (p.tipo === "mc") {
+      const sel = form.querySelector(`input[name="q${p.id}"]:checked`);
+      valor = sel ? sel.value : "";
+    } else {
+      valor = form.querySelector(`textarea[name="q${p.id}"]`).value.trim();
+    }
+    if (!valor && p.id !== 12) faltando.push(p.id);
+    respostas["q" + p.id] = valor || "(não respondido)";
+  });
+
+  document.querySelectorAll(".q").forEach(el => el.classList.remove("missing"));
+  if (faltando.length) {
+    faltando.forEach(id => document.getElementById("q" + id).classList.add("missing"));
+    alert("Faltou responder a(s) pergunta(s): " + faltando.join(", "));
+    document.getElementById("q" + faltando[0]).scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const nome = params.get("nome") || "";
+  const email = params.get("email") || "";
+
+  const btn = document.querySelector(".submit-bar button");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  try {
+    await fetch('https://script.google.com/macros/s/AKfycbxoRfhq3pVGmeWmli0FRlrQQE-zbyAM9dK8Tj037rVmvBwaZyDpmt7i87CTbtjrN_PZ/exec', {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({ tipo: 'questionario', nome, email, ...respostas })
+    });
+  } catch (err) {
+    // segue mesmo se o log falhar — não trava o cliente
+  }
+
+  document.getElementById("wrap").innerHTML =
+    '<h1>Obrigado' + (nome ? ', ' + nome.split(" ")[0] : '') + '!</h1>' +
+    '<p class="sub">Recebemos suas respostas. Em breve entramos em contato pra te mostrar onde a automação faz mais diferença no seu negócio.</p>';
+}
+</script>
+</body>
+</html>
